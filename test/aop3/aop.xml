@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/tx 
+	http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context-3.0.xsd
+	http://www.springframework.org/schema/aop 
+						http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
+						
+	<bean  id="myAdvice" class="test.aop3.MyAdvice" /><!-- 注册advice -->
+	<bean id="userController" class="test.aop3.UserController" /><!-- 注册目标对象类，方便测试使用 -->
+	
+	<aop:config expose-proxy="false" proxy-target-class="false"><!-- 基于Schema配置必须以<aop:config>开始 ,可配置是否暴露AOP代理，或是否使用CGLib代理-->
+		<aop:pointcut expression="target(test.aop3.UserController) and args(name) " id="pointcut"/><!-- 配置独立切点，方便在后面的切面配置中服用 -->
+		<aop:aspect ref="myAdvice" order="1" ><!-- 配置切面,通过ref引入增强类，通过order配置织入顺序 -->
+		<aop:before method="before" pointcut-ref="pointcut" arg-names="name"/><!-- 通过arg-names绑定目标对象的方法入参 名字需和增强的方法入参一致-->
+		<!-- 除了通过pointcut-ref属性引用独立命名切点，还可以通过pointcut属性声明并引用匿名切点 -->
+		<aop:around method="around" pointcut="execution( * test.aop3.UserController.login(..))"/>
+		<aop:after method="after" pointcut-ref="pointcut" arg-names="name"/>
+		<aop:after-returning method="AfterReturning" pointcut="target(test.aop3.UserController)" arg-names="retInfo" returning="retInfo" /><!--绑定目标对象方法的返回值到增强方法入参，名字需一致  -->
+		<aop:after-throwing method="afterThrowing" pointcut="target(test.aop3.UserController)" throwing="re"/>
+		</aop:aspect>
+	</aop:config>
+	
+	<aop:config>
+		<aop:advisor advice-ref="实现了特定的增强接口的增强类" order="1" pointcut="使用切点表达式函数定义切点"/>
+	</aop:config>
+</beans>

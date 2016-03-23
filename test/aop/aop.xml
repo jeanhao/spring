@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/tx 
+	http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context-3.0.xsd
+	http://www.springframework.org/schema/aop 
+						http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
+
+
+	<aop:aspectj-autoproxy /><!-- 使注解@AspectJ生效 -->
+	<!-- 配置前置增强  -->
+	<bean class="test.aop.BeforeAdvice" /><!-- 这里不用声明id,因为我们无须显示引用此bean，只需要注册让IOC容器识别并完成相关的AOP配置 -->
+	<bean id="target" class="test.aop.Target" /><!-- 注册目标对象，方便在测试时调用 -->
+
+	
+</beans>
