@@ -1,0 +1,13 @@
+Spring学习笔记AOP部分测试源码
+
+test.aop:以实现接口方式配置各类增强实例
+
+test.aop2:基于AspectJ配置各种增强实例，同时还进行了增强的织入顺序测试
+
+test.aop3:基于Schema方式配置AOP测试实例
+
+test.aop4:基于实现接口方式实现引介增强实例：模拟定时统计请求耗时任务
+
+test.aop5:基于AspectJ实现引介增强实例
+
+test.aop6:基于Schema实现引介增强实例
