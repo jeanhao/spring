@@ -1,0 +1,21 @@
+package com.yc.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.yc.dao.MyBaseDao;
+
+public class ArticleServiceImpl {
+
+	private MyBaseDao myBaseDao;
+	
+	public static void copyArticle() {
+		System.out.println("复制文章操作");
+	}
+
+
+	public void setMyBaseDao(MyBaseDao myBaseDao) {
+		this.myBaseDao = myBaseDao;
+	}
+
+}

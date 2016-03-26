@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/tx 
+	http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context-3.0.xsd
+	http://www.springframework.org/schema/aop 
+	http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+	http://www.springframework.org/schema/task
+     http://www.springframework.org/schema/task/spring-task-3.0.xsd">
+
+	<!-- 启动定时器 -->
+	<!-- <task:annotation-driven/> -->
+	<bean id="forumMaintainJob" class="tool.job.ForumMaintainJob" />
+	<bean class="org.springframework.scheduling.quartz.JobDetailFactoryBean" id="myJobDetail" >
+		<property name="applicationContextJobDataKey" value="acKey" />
+		<property name="durability" value="true"></property>
+		<property name="jobClass" value="tool.job.ForumMaintainJob" />
+		<property name="description" value="I'm desc" />
+		<property name="group" value="group1" />
+		<property name="name" value="testJob1" />
+		<property name="jobDataAsMap">
+			<map>
+				<entry key="key1" value="value1" />
+				<entry key="key2" value="value2" />
+			</map>
+		</property>
+		<!-- <property name="jobListenerNames">
+			<list>
+				<value>listener1</value>
+				<value>listener2</value>
+			</list>
+		</property> -->
+	</bean>
+
+	<bean class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean" id="myJobFactoryBean">
+		<property name="targetClass" value="com.yc.service.ArticleServiceImpl" /><!-- 指定目标类 -->
+		<property name="targetMethod" value="copyArticle" /><!-- 指定目标类中的方法 -->
+		<!-- <property name="staticMethod" value="com.yc.service.ArticleServiceImpl.copyArticle" /> 以上两句等同与这一句 -->
+		<!-- <property name="concurrent" value="true" /> --><!-- 指定最终封装出的任务类是否有状态 -->
+		<property name="name" value="job2" />
+		<property name="group" value="group2" />
+		<!-- <property name="jobListenerNames">
+			<list>
+				<value>listener1</value>
+				<value>listener2</value>
+			</list>
+		</property> -->
+	</bean>
+	
+	<bean class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean" id="mySimpleTrigger" >
+		<property name="jobDetail" ref="myJobDetail" />
+		<property name="name" value="trigger1" />
+		<property name="description" value="I'm desc of trigger" />
+		<property name="group" value="tgroup1" />
+		<property name="repeatCount" value="10" /><!-- 设置重复次数-->
+		<property name="repeatInterval" value="1000" /><!-- 设置调用间隔 -->
+		<property name="startDelay" value="1000" /><!-- 设置延迟执行时间，单位为毫秒 -->
+		<property name="startTime">
+			<bean class="java.util.Date" />
+		</property>
+	</bean>
+	
+	<bean class="org.springframework.scheduling.quartz.CronTriggerFactoryBean" id="myCronTriggerBean">
+		<property name="cronExpression" value="0/5 * * * * ?"  />
+		<property name="jobDetail" ref="myJobFactoryBean" />
+	</bean>
+	
+	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean" id="mySecheduler">
+		<property name="autoStartup" value="true" /><!-- 设置是否为初始化后自动开启，默认为true,如果需要手动开启，则将此属性设为false -->
+		<!-- <property name="configLocation" value="classpath:quartz.properties" /> --><!-- 读取我们的quartz属性文件资源 -->
+		<property name="jobDetails" >
+			<list >
+				<ref local="myJobDetail"/>
+				<ref local="myJobFactoryBean"/>
+			</list>
+		</property>
+		<property name="triggers">
+			<list>
+				<ref local="mySimpleTrigger"/>
+				<ref local="myCronTriggerBean"/>
+			</list>
+		</property>
+		<property name="startupDelay" value="2" /><!-- 以秒为单位，设置延迟开始时间 -->
+	</bean>
+	
+</beans>
