@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+        http://www.springframework.org/schema/beans     
+        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-3.0.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+        ">
+	<!-- 扫描com.mvc.controller包下所有的类，使spring注解生效 -->
+	<context:component-scan base-package="com.mvc.controller" />
+
+	<bean id="viewResolver"
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/WEB-INF/views/"></property><!-- 前缀，在springMVC控制层处理好的请求后，转发配置目录下的视图文件 -->
+		<property name="suffix" value=".jsp"></property><!-- 文件后缀，表示转发到的视图文件后缀为.jsp -->
+	</bean>
+	<mvc:annotation-driven />
+	<!-- <bean
+		class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
+		<property name="messageConverters">装配数据转换器
+			<list>
+				<ref bean="jsonConverter" />指定装配json格式的数据转换器
+			</list>
+		</property>
+	</bean>
+
+	<bean id="jsonConverter"
+		class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter">
+		使用MappingJacksonHttpMessageConverter完成json数据转换
+		<property name="supportedMediaTypes" value="application/json" />
+		设置转换的media类型为application/json
+	</bean> -->
+</beans>
