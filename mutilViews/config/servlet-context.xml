@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+        http://www.springframework.org/schema/beans     
+        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-3.0.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+        ">
+	<!-- 扫描com.mvc.controller包下所有的类，使spring注解生效 -->
+	<context:component-scan base-package="com.mvc.controller" />
+	<bean class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver"><!-- 根据确定出的不同MIME名，使用不同视图解析器解析视图 -->
+		<property name="order" value="1" /><!-- 设置优先级 -->
+		<property name="defaultContentType" value="text/html" /><!-- 设置默认的MIME类型，如果没有指定拓展名或请求参数，则使用此默认MIME类型解析视图 -->
+		<property name="ignoreAcceptHeader" value="true" /><!-- 是否不适用请求头确定MIME类型 -->
+		<property name="favorPathExtension" value="false" /><!-- 是否根据路径拓展名确定MIME类型 -->
+		<property name="favorParameter" value="true" />	<!-- 是否使用参数来确定MIME类型 -->
+		<property name="parameterName" value="type" /><!-- 上一个属性配置为true,我们指定type请求参数判断MIME类型 -->
+		<property name="mediaTypes"><!-- 根据请求参数映射到相应的MIME类型 -->
+			<map>
+				<entry key="html" value="text/html" />
+				<entry key="xml" value="application/xml" />
+				<entry key="json" value="application/json" />
+				<entry key="excel" value="application/vnd.ms-excel"></entry>
+			</map>
+		</property>
+		<property name="defaultViews"><!-- 设置默认的候选视图，如果有合适的MIME类型，将优先从以下选择视图，找不到再在整个Spring容器里寻找已注册的合适视图 -->
+			<list>
+				<bean class="org.springframework.web.servlet.view.InternalResourceView">
+					<property name="url" value="WEB-INF/views/hello.jsp"></property>
+				</bean>
+				<bean
+					class="org.springframework.web.servlet.view.json.MappingJacksonJsonView" />
+				<ref local="myXmlView" />
+				<bean class="com.mvc.view.ExcelView" />
+			</list>
+		</property>
+	</bean>
+	<!-- Excel视图 -->
+	<bean class="com.mvc.view.ExcelView" id="excelView" /><!-- 注册自定义视图 -->
+	<bean class="org.springframework.web.servlet.view.xml.MarshallingView"
+		id="myXmlView">
+		<property name="modelKey" value="articles" />
+		<property name="marshaller" ref="xmlMarshaller" />
+	</bean>
+	<bean class="org.springframework.oxm.xstream.XStreamMarshaller"
+		id="xmlMarshaller"><!-- 将模型数据转换为XML格式 -->
+		<property name="streamDriver">
+			<bean class="com.thoughtworks.xstream.io.xml.StaxDriver" />
+		</property>
+	</bean>
+
+	<bean
+		class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver"
+		id="freeMaker">
+		<property name="prefix" value="fm_" /><!-- 指定文件前缀 -->
+		<property name="suffix" value=".ftl" /><!-- 指定文件后缀 -->
+		<property name="order" value="1" /><!-- 指定当前视图解析器的优先级 -->
+		<property name="contentType" value="text/html; charset=utf-8" /><!-- 
+			指定编码类型输出，防止出现中文乱码现象 -->
+	</bean>
+	<bean
+		class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
+		<property name="templateLoaderPath" value="/WEB-INF/freeMaker" /><!-- 
+			指定模板文件存放位置 -->
+		<property name="defaultEncoding" value="UTF-8" /><!-- 由于模板文件中使用utf-8编码，如果不显式指定，会采用系统默认编码，易造成乱码 -->
+		<property name="freemarkerSettings"><!-- 定义FreeMaker丰富的自定义属性 -->
+			<props>
+				<prop key="classic_compatible">true</prop><!-- 当碰到对象属性为null时，返回一个空字符串而非抛出系统异常 -->
+			</props>
+		</property>
+	</bean>
+
+	<!-- <bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver"> 
+		<property name="prefix" value="/WEB-INF/views/"></property>前缀，在springMVC控制层处理好的请求后，转发配置目录下的视图文件 
+		<property name="suffix" value=".jsp"></property>文件后缀，表示转发到的视图文件后缀为.jsp </bean> -->
+	<!-- 通过:annotation-driven的conversion-service属性来装配我们的类型转换器 -->
+	<mvc:annotation-driven />
+	<!-- -->	<!-- <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter"> 
+		<property name="messageConverters">装配数据转换器 <list> <ref bean="jsonConverter" 
+		/>指定装配json格式的数据转换器 </list> </property> </bean> <bean id="jsonConverter" class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter"> 
+		使用MappingJacksonHttpMessageConverter完成json数据转换 <property name="supportedMediaTypes" 
+		value="application/json" /> 设置转换的media类型为application/json </bean> -->
+</beans>
